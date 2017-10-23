@@ -3,22 +3,26 @@ contract Borrow {
     struct Debt {
         address from;
         address to;
-        bytes32 info;
-        bool is_active;
+        uint amount;
     }
 
     uint lastDebtId;
     mapping(uint => Debt) debts;
 
-    function createDebt(address _to, bytes32 _info) public returns (uint thisId) {
+    function createDebt(address _to, uint _amount) public returns (uint thisId) {
         thisId = lastDebtId++;
-        debts[thisId] = Debt(msg.sender, _to, _info, true);
+        debts[thisId] = Debt(msg.sender, _to, _amount);
     }
     
-    function destroyDebt(uint _id) public returns (bool result){
-        if (_id < 0 || _id > lastDebtId) return false;
-        if (debts[_id].to != msg.sender) return false;
-        debts[_id].is_active = false;
-        return true;
+    function decDebt(uint _id, uint _amount) public {
+        if (_id > lastDebtId) revert();
+        if (debts[_id].to != msg.sender) revert();
+        if (_amount > debts[_id].amount) revert();
+        debts[_id].amount = debts[_id].amount - _amount;
     }
+    
+    function showDebt(uint _id) public view returns (address, address, uint) {
+        return (debts[_id].from, debts[_id].to, debts[_id].amount);
+    }
+
 }
