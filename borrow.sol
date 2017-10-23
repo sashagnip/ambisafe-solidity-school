@@ -18,11 +18,10 @@ contract Borrow {
         if (_id > lastDebtId) revert();
         if (debts[_id].to != msg.sender) revert();
         if (_amount > debts[_id].amount) revert();
-        debts[_id].amount = debts[_id].amount - _amount;
+        debts[_id].amount -= _amount;
     }
     
     function showDebt(uint _id) public view returns (address, address, uint) {
         return (debts[_id].from, debts[_id].to, debts[_id].amount);
     }
-
 }
