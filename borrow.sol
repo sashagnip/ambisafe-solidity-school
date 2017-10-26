@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 contract Borrow {
     struct Debt {
-        address from;
-        address to;
+        address taker;
+        address giver;
         uint amount;
     }
 
@@ -10,23 +10,23 @@ contract Borrow {
     uint lastDebtId;
 
     event CreatedDebt(uint id, 
-                      address from, 
-                      address to, 
+                      address taker, 
+                      address giver, 
                       uint amount);
 
     event DecreasedDebt(uint id, 
-                        address from, 
-                        address to, 
+                        address taker, 
+                        address giver, 
                         uint amount, 
                         uint left);
 
-    function createDebt(address to, uint amount) public returns (uint) {
+    function createDebt(address giver, uint amount) public returns (uint) {
         require(amount > 0);
         uint id = lastDebtId++;
-        debts[id] = Debt(msg.sender, to, amount);
+        debts[id] = Debt(msg.sender, giver, amount);
         CreatedDebt(id, 
                     msg.sender, 
-                    to,
+                    giver,
                     amount);
         return id;
     }
@@ -34,17 +34,17 @@ contract Borrow {
     function decDebt(uint id, uint amount) public {
         require(amount > 0);
         require(id <= lastDebtId);
-        require(debts[id].to == msg.sender);
+        require(debts[id].giver == msg.sender);
         require(amount <= debts[id].amount);
         debts[id].amount -= amount;
         DecreasedDebt(id, 
-                      debts[id].from, 
-                      debts[id].to, 
+                      debts[id].taker, 
+                      debts[id].giver, 
                       amount, 
                       debts[id].amount);
     }
 
     function showDebt(uint id) public view returns (address, address, uint) {
-        return (debts[id].from, debts[id].to, debts[id].amount);
+        return (debts[id].taker, debts[id].giver, debts[id].amount);
     }
 }
