@@ -21,7 +21,7 @@ contract Borrow {
                         uint left);
 
     function createDebt(address to, uint amount) public returns (uint) {
-        if (amount == 0) revert();
+        require(amount > 0);
         uint id = lastDebtId++;
         debts[id] = Debt(msg.sender, to, amount);
         CreatedDebt(id, 
@@ -32,10 +32,10 @@ contract Borrow {
     }
     
     function decDebt(uint id, uint amount) public {
-        if (amount == 0) revert();
-        if (id > lastDebtId) revert();
-        if (debts[id].to != msg.sender) revert();
-        if (amount > debts[id].amount) revert();
+        require(amount > 0);
+        require(id <= lastDebtId);
+        require(debts[id].to == msg.sender);
+        require(amount <= debts[id].amount);
         debts[id].amount -= amount;
         DecreasedDebt(id, 
                       debts[id].from, 
