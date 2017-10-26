@@ -7,7 +7,7 @@ contract Borrow {
     }
 
     mapping(uint => Debt) debts;
-    uint lastDebtId;
+    uint countDebts;
 
     event CreatedDebt(uint id, 
                       address taker, 
@@ -22,7 +22,7 @@ contract Borrow {
 
     function createDebt(address giver, uint amount) public returns (uint) {
         require(amount > 0);
-        uint id = lastDebtId++;
+        uint id = countDebts++;
         debts[id] = Debt(msg.sender, giver, amount);
         CreatedDebt(id, 
                     msg.sender, 
@@ -33,7 +33,7 @@ contract Borrow {
     
     function decDebt(uint id, uint amount) public {
         require(amount > 0);
-        require(id <= lastDebtId);
+        require(id < countDebts);
         require(debts[id].giver == msg.sender);
         require(amount <= debts[id].amount);
         debts[id].amount -= amount;
